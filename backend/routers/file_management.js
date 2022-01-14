@@ -1,12 +1,8 @@
 const express = require("express");
-const fs = require("fs");
 const router = new express.Router();
 const AWS = require("aws-sdk");
 const file_model = require("../models/file");
 const auth = require("../middleware/auth");
-const path = require("path");
-const request = require("request");
-const ObjectId = require("mongodb").ObjectId;
 
 // configure aws and create a s3 object
 AWS.config.update({
@@ -15,6 +11,27 @@ AWS.config.update({
 });
 
 const s3 = new AWS.S3();
+
+// Folder Exists check
+router.post("/check", auth, async (req, res) => {
+  const { link, foldername } = req.body;
+
+  await file_model.findOne(
+    { owner: req.user._id, file_name: foldername, link: link },
+    (err, file) => {
+      if (err) {
+        console.error(err);
+        return;
+      } else {
+        if (file) {
+          res.send({ msg: 1 });
+        } else {
+          res.send({ msg: 0 });
+        }
+      }
+    }
+  );
+});
 
 //Copy files/folder
 
@@ -115,19 +132,12 @@ router.post("/addfolder", auth, (req, res) => {
 
 // upload a file
 router.post("/upload/:link", auth, async (req, res, next) => {
+  let fileId;
   let file = req.files.uploadFile;
 
-  const file_content = Buffer.from(file.data, "base64");
-  const params = {
-    Bucket: process.env.BUCKET_NAME,
-    Key: file.name,
-    Body: file_content,
-  };
-
-  // insert file details in db
   const file_obj = {
-    key: params.Key,
-    bucket: params.Bucket,
+    key: file.name,
+    bucket: process.env.BUCKET_NAME,
     isFav: false,
     isTrash: false,
     file_name: file.name,
@@ -138,14 +148,21 @@ router.post("/upload/:link", auth, async (req, res, next) => {
 
   const model_obj = new file_model(file_obj);
 
-  model_obj.save((err, obj) => {
-    if (err) console.log(err);
-    // console.log(obj);
-  });
-
-  s3.upload(params, (err, data) => {
-    if (err) res.send("error");
-    res.send("Uploaded file");
+  model_obj.save(async (err, obj) => {
+    if (err) {
+      console.log(err);
+    } else {
+      const file_content = Buffer.from(file.data, "base64");
+      const params = {
+        Bucket: process.env.BUCKET_NAME,
+        Key: String(obj._id),
+        Body: file_content,
+      };
+      s3.upload(params, (err, data) => {
+        if (err) console.error(err);
+        else console.log("Saved to cloud");
+      });
+    }
   });
 });
 
@@ -205,7 +222,7 @@ router.get("/download/:file_id", auth, async (req, res) => {
 
       const params = {
         Bucket: file_detail[0].bucket,
-        Key: file_detail[0].key,
+        Key: String(file_detail[0]._id),
       };
 
       s3.getObject(params, function (err, data) {

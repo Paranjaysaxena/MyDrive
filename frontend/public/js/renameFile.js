@@ -19,5 +19,7 @@ async function renameFile(file_id, link) {
       headers: myHeaders,
       body: JSON.stringify(obj),
     });
+
+    document.getElementById("renameModalClose").click();
   });
 }

@@ -74,6 +74,18 @@
         >
           <div class="position-sticky pt-3">
             <ul class="nav flex-column">
+              <div style="margin-left: 0.7rem">
+                <img
+                  onclick="back()"
+                  style="cursor:pointer"
+                  src="https://img.icons8.com/ios/28/000000/login-rounded.png"
+                />
+                <img
+                  style="cursor:pointer"
+                  onclick="refresh()"
+                  src="https://img.icons8.com/external-becris-lineal-becris/28/000000/external-reload-mintab-for-ios-becris-lineal-becris.png"
+                />
+              </div>
 
               <li class="nav-item">
                 <a
@@ -172,20 +184,6 @@
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
 
           <div class="table-responsive">
-
-            <img
-              onclick="back()"
-              style="cursor:pointer"
-              src="https://img.icons8.com/ios/28/000000/login-rounded.png"
-            />
-            <img
-              style="cursor:pointer"
-              onclick="refresh()"
-              src="https://img.icons8.com/external-becris-lineal-becris/28/000000/external-reload-mintab-for-ios-becris-lineal-becris.png"
-            />
-
-            <br />
-
             <nav style="--bs-breadcrumb-divider: '>';">
               <ol class="breadcrumb" id="crumbs">
 
@@ -256,10 +254,10 @@
       style="display:none"
     >
       <li class="context-menu-item" id="c">
-        <a class="context-menu-link" id="b1" tabindex="-1" href="#">Copy</a>
+        <a class="context-menu-link" id="b1" tabindex="-1" href="#">Paste</a>
       </li>
       <li class="context-menu-item" id="m">
-        <a class="context-menu-link" id="b2" tabindex="-1" href="#">Move</a>
+        <a class="context-menu-link" id="b2" tabindex="-1" href="#">Paste</a>
       </li>
     </ul>
 
@@ -290,6 +288,7 @@
           <div class="modal-header">
             <h5 class="modal-title" id="staticBackdropLabel">Enter folder name</h5>
             <button
+              id="newFolderModalClose"
               type="button"
               class="btn-close"
               data-bs-dismiss="modal"
@@ -350,6 +349,7 @@
           <div class="modal-header">
             <h5 class="modal-title" id="staticBackdropLabel">Rename file</h5>
             <button
+              id="renameModalClose"
               type="button"
               class="btn-close"
               data-bs-dismiss="modal"
@@ -478,10 +478,10 @@
           </div>
           <div class="modal-body">
             <h6><span style="color: black">Created At: </span>
-              <span id="create" class="card-subtitle mb-2 text-muted"></span>
+              <span id="createT" class="card-subtitle mb-2 text-muted"></span>
             </h6>
             <h6><span style="color: black">Updated At: </span>
-              <span id="update" class="card-subtitle mb-2 text-muted"> </span>
+              <span id="updateT" class="card-subtitle mb-2 text-muted"> </span>
             </h6>
           </div>
           <div class="modal-footer">

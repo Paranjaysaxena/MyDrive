@@ -1,4 +1,35 @@
-function createFolder() {
+async function folderCheck(foldername, link) {
+  console.log(foldername, link);
+  let found;
+
+  let obj = {
+    foldername,
+    link,
+  };
+
+  const myHeaders = new Headers({
+    "Content-type": "application/json; charset=UTF-8",
+    Authorization: "Bearer " + localStorage.getItem("authToken"),
+  });
+
+  await fetch(`http://localhost:3000/check`, {
+    method: "POST",
+    headers: myHeaders,
+    body: JSON.stringify(obj),
+  })
+    .then((response) => {
+      return response.json();
+    })
+    .then((data) => {
+      found = data.msg;
+      console.log(data.msg);
+    })
+    .catch((err) => console.log(err));
+
+  return found;
+}
+
+async function createFolder() {
   var popup = document.getElementById("create-popup");
   popup.click();
   var formPopup = document.getElementById("folder-form-popup");
@@ -10,33 +41,40 @@ function createFolder() {
     { once: true }
   );
 
-  function callCreateFolder() {
+  async function callCreateFolder() {
     var foldername = document.getElementById("foldername").value;
+    let link = localStorage.getItem("folder");
+    let exist = await folderCheck(foldername, link);
 
-    let link;
+    if (!exist) {
+      let link;
 
-    if (localStorage.getItem("folder").length === 0) {
-      link = "none";
+      if (localStorage.getItem("folder").length === 0) {
+        link = "none";
+      } else {
+        link = localStorage.getItem("folder");
+      }
+
+      const obj = {
+        link,
+        foldername,
+      };
+
+      const myHeaders = new Headers({
+        "Content-type": "application/json; charset=UTF-8",
+        Authorization: "Bearer " + localStorage.getItem("authToken"),
+      });
+
+      fetch(`http://localhost:3000/addfolder`, {
+        method: "POST",
+        headers: myHeaders,
+        body: JSON.stringify(obj),
+      });
+
+      alert("Folder added");
     } else {
-      link = localStorage.getItem("folder");
+      alert("Foldername already exist");
     }
-
-    const obj = {
-      link,
-      foldername,
-    };
-
-    const myHeaders = new Headers({
-      "Content-type": "application/json; charset=UTF-8",
-      Authorization: "Bearer " + localStorage.getItem("authToken"),
-    });
-
-    fetch(`http://localhost:3000/addfolder`, {
-      method: "POST",
-      headers: myHeaders,
-      body: JSON.stringify(obj),
-    });
-
-    alert("Folder added");
+    document.getElementById("newFolderModalClose").click();
   }
 }
