@@ -30,9 +30,50 @@ function getMyStorageContent(file_list) {
     if (
       file_details.file_name.toUpperCase().indexOf(filter.toUpperCase()) > -1
     ) {
+      const pdficon =
+        '<img src="https://img.icons8.com/ios-filled/40/000000/pdf--v1.png"/>';
+      const pngicon =
+        '<img src="https://img.icons8.com/ios-filled/40/000000/png.png"/>';
+      const jpgicon =
+        '<img src="https://img.icons8.com/ios-filled/40/000000/jpg.png"/>';
+      const txticon =
+        '<img src="https://img.icons8.com/ios-glyphs/40/000000/txt.png"/>';
+      const docxicon =
+        '<img src="https://img.icons8.com/fluency/40/000000/microsoft-word-2019.png"/>';
+      const pptxicon =
+        '<img src="https://img.icons8.com/color/40/000000/microsoft-powerpoint-2019--v1.png"/>';
+      const xlsxicon =
+        '<img src="https://img.icons8.com/color/40/000000/microsoft-excel-2019--v1.png"/>';
+
+      function fileIcon() {
+        if (file_details.file_name.search(".pdf") > 0) {
+          return pdficon;
+        }
+        if (file_details.file_name.search(".png") > 0) {
+          return pngicon;
+        }
+        if (file_details.file_name.search(".jpg") > 0) {
+          return jpgicon;
+        }
+        if (file_details.file_name.search(".txt") > 0) {
+          return txticon;
+        }
+        if (file_details.file_name.search(".docx") > 0) {
+          return docxicon;
+        }
+        if (file_details.file_name.search(".pptx") > 0) {
+          return pptxicon;
+        }
+        if (file_details.file_name.search(".xlsx") > 0) {
+          return xlsxicon;
+        }
+
+        return '<img src="https://img.icons8.com/external-kiranshastry-lineal-kiranshastry/40/000000/external-file-multimedia-kiranshastry-lineal-kiranshastry-2.png" />';
+      }
+
       const icon = file_details.parent
         ? '<img src="https://img.icons8.com/color/40/000000/folder-invoices--v1.png"/>'
-        : '<img src="https://img.icons8.com/external-kiranshastry-lineal-kiranshastry/40/000000/external-file-multimedia-kiranshastry-lineal-kiranshastry-2.png"/>';
+        : fileIcon();
 
       content +=
         `<tr 

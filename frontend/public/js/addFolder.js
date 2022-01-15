@@ -1,5 +1,4 @@
 async function folderCheck(foldername, link) {
-  console.log(foldername, link);
   let found;
 
   let obj = {
@@ -22,7 +21,6 @@ async function folderCheck(foldername, link) {
     })
     .then((data) => {
       found = data.msg;
-      console.log(data.msg);
     })
     .catch((err) => console.log(err));
 
