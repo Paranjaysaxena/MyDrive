@@ -1,44 +1,53 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 // defining a schema
-let file_schema = new mongoose.Schema({
+let file_schema = new mongoose.Schema(
+  {
     key: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     bucket: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     isFav: {
-        type: Boolean,
+      type: Boolean,
     },
     isTrash: {
-        type: Boolean,
+      type: Boolean,
     },
     file_name: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     owner: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        ref: 'User'
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
     },
     updatedAt: {
-        type: Date,
-        default: Date.now
+      type: Date,
+      default: Date.now,
     },
-}, {
-    timestamps: true
+    parent: {
+      type: Boolean,
+    },
+    link: {
+      type: String,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+file_schema.pre("save", function preSave(next) {
+  var file = this;
+  file.updatedAt = Date.now;
+  next();
 });
 
-file_schema.pre('save', function preSave(next) {
-    var file = this;
-    file.updatedAt = Date.now;
-    next();
-});
+let file_model = mongoose.model("file_details", file_schema);
 
-let file_model = mongoose.model('file_details', file_schema);
-
-module.exports = file_model
+module.exports = file_model;
