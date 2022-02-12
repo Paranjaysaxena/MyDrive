@@ -119,21 +119,40 @@
                 >Trash</a>
               </li>
 
-              <li class="nav-item">
+              {{! <li class="nav-item">
                 <form
                   hidden
                   enctype="multipart/form-data"
-                  onsubmit="uploadFile()"
+                  onsubmit="uploadFile(event)"
                 >
                   <input type="file" id="choose-file" multiple />
                   <input type="submit" value="upload!" id="submit-btn" />
                 </form>
 
                 <a class="nav-link" id="upload-file" href="#">Upload file</a>
+              </li> }}
+
+              <li class="nav-item">
+                <form enctype="multipart/form-data" onchange="uploadFile()">
+                  <a class="nav-link" href="#">
+                    <label
+                      htmlFor="choose-file"
+                      onclick="fireUploadFileModal()"
+                      style="cursor:pointer"
+                    >
+                      Upload File
+                    </label>
+                  </a>
+                  <input type="file" id="choose-file" multiple hidden />
+                </form>
+
               </li>
 
               <li class="nav-item">
-                <form enctype="multipart/form-data" onchange="uploadFolder()">
+                <form
+                  enctype="multipart/form-data"
+                  onchange="uploadFolder(event)"
+                >
                   <a class="nav-link" id="upload-file" href="#">
                     <label
                       htmlFor="choose-folder"

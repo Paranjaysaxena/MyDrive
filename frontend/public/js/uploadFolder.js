@@ -2,12 +2,14 @@ function fireUploadFolderModal() {
   document.getElementById("choose-folder").click();
 }
 
-async function uploadFolder() {
+async function uploadFolder(event) {
+  console.log(event);
   var f = document.getElementById("choose-folder");
+  var files = f.files;
 
   // Get folder name
 
-  var res = f.files[0].webkitRelativePath;
+  var res = files[0].webkitRelativePath;
   var foldername = "";
   for (let l of res) {
     if (l !== "/") {
@@ -16,6 +18,10 @@ async function uploadFolder() {
       break;
     }
   }
+
+  // for (let i = 0; i < files.length; i++) {
+  //   console.log(files[i].webkitRelativePath);
+  // }
 
   // Upload parent folder
 
@@ -51,21 +57,27 @@ async function uploadFolder() {
     });
 
   // Upload all subfiles of the parent folder
+  let p = [];
+  var allFile = new FormData();
 
   for (let file of f.files) {
     var token = localStorage.getItem("authToken");
-
-    var allFile = new FormData();
-    allFile.append("uploadFile", file);
+    allFile.set("uploadFile", file);
 
     const myHeaders = new Headers({
       Authorization: "Bearer " + token,
     });
 
-    await fetch(`http://localhost:3000/upload/${newLink}`, {
-      method: "POST",
-      headers: myHeaders,
-      body: allFile,
-    });
+    p.push(
+      fetch(`http://localhost:3000/upload/${newLink}`, {
+        method: "POST",
+        headers: myHeaders,
+        body: allFile,
+      }).then((response) => response.json())
+    );
   }
+
+  Promise.all(p)
+    .then((res) => alert("Uploaded " + res.length + " files"))
+    .catch((err) => alert("Failed"));
 }
