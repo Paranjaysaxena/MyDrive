@@ -3,7 +3,6 @@ function fireUploadFolderModal() {
 }
 
 async function uploadFolder(event) {
-  console.log(event);
   var f = document.getElementById("choose-folder");
   var files = f.files;
 

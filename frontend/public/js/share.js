@@ -1,6 +1,7 @@
 var sharePopup = document.getElementById("share-popup");
 
 function shareFile(file_id) {
+  console.log(file_id);
   sharePopup.click();
   shareFilePopup(file_id);
 }

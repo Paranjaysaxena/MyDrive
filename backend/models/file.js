@@ -42,6 +42,8 @@ let file_schema = new mongoose.Schema(
   }
 );
 
+file_schema.index({ key: "text" });
+
 file_schema.pre("save", function preSave(next) {
   var file = this;
   file.updatedAt = Date.now;
