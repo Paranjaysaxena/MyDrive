@@ -3,19 +3,6 @@ if (home) {
   home.click();
 }
 
-//*********************************************************/
-const upload_file_btn = document.getElementById("upload-file");
-const choose_file_btn = document.getElementById("choose-file");
-
-if (upload_file_btn) {
-  upload_file_btn.addEventListener("click", () => {
-    choose_file_btn.click();
-    choose_file_btn.addEventListener("change", () => {
-      document.getElementById("submit-btn").click();
-    });
-  });
-}
-
 //***********Authentication**********************/
 
 setTimeout(() => {

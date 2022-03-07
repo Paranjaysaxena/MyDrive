@@ -1,9 +1,10 @@
+function fireUploadFileModal() {
+  document.getElementById("choose-file").click();
+}
+
 async function uploadFile() {
   var file = document.getElementById("choose-file");
   var token = localStorage.getItem("authToken");
-
-  var allFile = new FormData();
-  allFile.append("uploadFile", file.files[0]);
 
   let link;
 
@@ -13,16 +14,28 @@ async function uploadFile() {
     link = localStorage.getItem("folder");
   }
 
-  const myHeaders = new Headers({
-    Authorization: "Bearer " + token,
-  });
+  var allFile = new FormData();
+  let p = [];
 
-  await fetch(`http://localhost:3000/upload/${link}`, {
-    method: "POST",
-    headers: myHeaders,
-    body: allFile,
-  }).then((res) => {
-    console.log(res);
-    window.location.href = "/drive?";
-  });
+  for (let newFile of file.files) {
+    allFile.set("uploadFile", newFile);
+
+    const myHeaders = new Headers({
+      Authorization: "Bearer " + token,
+    });
+
+    p.push(
+      fetch(`http://localhost:3000/upload/${link}`, {
+        method: "POST",
+        headers: myHeaders,
+        body: allFile,
+      }).then((res) => {
+        return res.json();
+      })
+    );
+  }
+
+  Promise.all(p)
+    .then((res) => alert("Uploaded " + res.length + " files"))
+    .catch((err) => alert("Error uploading"));
 }

@@ -4,13 +4,11 @@ const AWS = require("aws-sdk");
 const file_model = require("../models/file");
 const auth = require("../middleware/auth");
 
-// configure aws and create a s3 object
-AWS.config.update({
+const s3 = new AWS.S3({
   accessKeyId: process.env.ACCESS_KEY_ID,
   secretAccessKey: process.env.SECRET_ACCESS_KEY,
+  signatureVersion: "v4",
 });
-
-const s3 = new AWS.S3();
 
 // Folder Exists check
 router.post("/check", auth, async (req, res) => {
@@ -53,8 +51,6 @@ router.patch("/copy", auth, async (req, res) => {
       createdAt,
       updatedAt,
     } = file;
-
-    console.log("file", file);
 
     file_obj = {
       key,
@@ -130,11 +126,9 @@ router.post("/addfolder", auth, (req, res) => {
   });
 });
 
-// upload a file
+// upload files
 router.post("/upload/:link", auth, async (req, res, next) => {
-  let fileId;
   let file = req.files.uploadFile;
-
   const file_obj = {
     key: file.name,
     bucket: process.env.BUCKET_NAME,
@@ -145,12 +139,10 @@ router.post("/upload/:link", auth, async (req, res, next) => {
     parent: false,
     link: req.params.link,
   };
-
   const model_obj = new file_model(file_obj);
-
   model_obj.save(async (err, obj) => {
     if (err) {
-      console.log(err);
+      res.send({ msg: "failed" });
     } else {
       const file_content = Buffer.from(file.data, "base64");
       const params = {
@@ -159,8 +151,8 @@ router.post("/upload/:link", auth, async (req, res, next) => {
         Body: file_content,
       };
       s3.upload(params, (err, data) => {
-        if (err) console.error(err);
-        else console.log("Saved to cloud");
+        if (err) res.send({ msg: "failed" });
+        res.send({ msg: "success" });
       });
     }
   });
@@ -240,27 +232,22 @@ router.get("/download/:file_id", auth, async (req, res) => {
 
 // share a file
 router.post("/share", auth, async (req, res) => {
-  await file_model.find(
-    { _id: req.body.file_id, owner: req.user._id },
-    (err, file_detail) => {
-      const params = {
-        Bucket: file_detail[0].bucket,
-        Key: file_detail[0].key,
-      };
+  const params = {
+    Bucket: process.env.BUCKET_NAME,
+    Key: req.body.file_id,
+  };
 
-      var expire = parseFloat(req.body.expire_in);
+  var expire = parseFloat(req.body.expire_in);
 
-      const signedUrlExpireSeconds = expire * 3600; // your expiry time in seconds.
+  const signedUrlExpireSeconds = expire * 3600; // your expiry time in seconds.
 
-      const url = s3.getSignedUrl("getObject", {
-        Bucket: params.Bucket,
-        Key: params.Key,
-        Expires: signedUrlExpireSeconds,
-      });
+  const url = s3.getSignedUrl("getObject", {
+    Bucket: params.Bucket,
+    Key: params.Key,
+    Expires: signedUrlExpireSeconds,
+  });
 
-      res.send(url);
-    }
-  );
+  res.send(url);
 });
 
 // Delete files/folder
@@ -281,33 +268,44 @@ router.delete("/files/:file_id", auth, async (req, res) => {
     rootid = file_detail._id;
     deleteSubFiles(rootid);
     deleteSubFolders(rootid);
+  } else {
+    deleteFile(file_detail._id);
+  }
+
+  async function deleteFile(key) {
+    const params = {
+      Bucket: process.env.BUCKET_NAME,
+      Key: String(key),
+    };
+
+    s3.deleteObject(params, function (err, data) {
+      if (err) console.log(err);
+    });
   }
 
   async function deleteSubFiles(rootid) {
-    // await file_model
-    //   .find(
-    //     { owner: req.user._id, parent: false, link: rootid },
-    //     { key: 1, _id: 0 }
-    //   )
-    // .then((res) => {
-    //   let objects = [];
-    //   for (let o of res) {
-    //     objects.push({ Key: o.key });
-    //   }
-
-    //   const params = {
-    //     Bucket: process.env.BUCKET,
-    //     Delete: {
-    //       Objects: objects,
-    //       Quiet: false,
-    //     },
-    //   };
-
-    //   s3.deleteObjects(params, function (err, data) {
-    //     if (err) console.log(err);
-    //     else console.log(data);
-    //   });
-    // });
+    await file_model
+      .find({ owner: req.user._id, parent: false, link: rootid }, { _id: 1 })
+      .then((res) => {
+        for (let o of res) {
+          deleteFile(o._id);
+        }
+        //   let objects = [];
+        //   for (let o of res) {
+        //     objects.push({ Key: String(o._id) });
+        //   }
+        //   const params = {
+        //     Bucket: process.env.BUCKET,
+        //     Delete: {
+        //       Objects: objects,
+        //       Quiet: false,
+        //     },
+        //   };
+        //   s3.deleteObjects(params, function (err, data) {
+        //     if (err) console.log(err);
+        //     else console.log(data);
+        //   });
+      });
 
     await file_model.deleteMany({
       owner: req.user._id,
@@ -380,6 +378,16 @@ router.patch("/rename/:file_id", auth, async (req, res) => {
     { file_name: newName, updatedAt: Date.now },
     (ERR, file) => {
       res.send(file);
+    }
+  );
+});
+
+router.get("/search/:searchterm", auth, async (req, res) => {
+  let s = req.params.searchterm;
+  await file_model.find(
+    { $text: { $search: s }, owner: req.user._id, isTrash: false },
+    (ERR, file_list) => {
+      res.send(file_list);
     }
   );
 });

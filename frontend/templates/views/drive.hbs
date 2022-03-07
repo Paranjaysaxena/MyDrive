@@ -56,6 +56,7 @@
         type="text"
         placeholder="Search"
         aria-label="Search"
+        onkeyup="search()"
       />
       <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
@@ -119,21 +120,45 @@
                 >Trash</a>
               </li>
 
-              <li class="nav-item">
+              {{! <li class="nav-item">
                 <form
                   hidden
                   enctype="multipart/form-data"
-                  onsubmit="uploadFile()"
+                  onsubmit="uploadFile(event)"
                 >
                   <input type="file" id="choose-file" multiple />
                   <input type="submit" value="upload!" id="submit-btn" />
                 </form>
 
                 <a class="nav-link" id="upload-file" href="#">Upload file</a>
+              </li> }}
+
+              <li class="nav-item">
+                <form
+                  enctype="multipart/form-data"
+                  onchange="uploadFile()"
+                  class="file-upload"
+                >
+                  <a class="nav-link" href="#">
+                    <label
+                      htmlFor="choose-file"
+                      onclick="fireUploadFileModal()"
+                      style="cursor:pointer"
+                    >
+                      Upload File
+                    </label>
+                  </a>
+                  <input type="file" id="choose-file" multiple hidden />
+                </form>
+
               </li>
 
               <li class="nav-item">
-                <form enctype="multipart/form-data" onchange="uploadFolder()">
+                <form
+                  enctype="multipart/form-data"
+                  onchange="uploadFolder(event)"
+                  class="folder-upload"
+                >
                   <a class="nav-link" id="upload-file" href="#">
                     <label
                       htmlFor="choose-folder"
@@ -535,6 +560,7 @@
 
     <!-- Display list of files -->
 
+    <script src="js/search.js"></script>
     <script src="js/uploadFolder.js"></script>
     <script src="js/copyMove.js"></script>
     <script src="js/nav.js"></script>

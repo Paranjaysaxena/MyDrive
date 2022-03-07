@@ -18,6 +18,11 @@
 - Authentication for users to login.
 - Created and updated time of file.
 - Search files
+- Folder support
+- Upload folder
+- Copy/Move files and folders
+- Breadcrumb Navigation
+- Dynamic file icons
 
 ### SETUP INSTRUCTIONS
 

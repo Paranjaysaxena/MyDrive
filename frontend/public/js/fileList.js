@@ -1,7 +1,5 @@
 async function getFileList() {
   localStorage.setItem("folder", "none");
-  var search = document.getElementById("search");
-  search.onkeyup = getFileList;
   const myHeaders = new Headers({
     Authorization: "Bearer " + localStorage.getItem("authToken"),
   });
@@ -23,8 +21,6 @@ async function getFileList() {
 }
 
 async function getSubFileList(id) {
-  var search = document.getElementById("search");
-  search.onkeyup = getFileList;
   const myHeaders = new Headers({
     Authorization: "Bearer " + localStorage.getItem("authToken"),
   });
